@@ -15,25 +15,42 @@ jobs:
         run: |
           echo "Pinging services at $(date)"
           
-          # Ping Supabase
+          # Ping Supabase - adding both apikey and Authorization headers
           echo "Pinging Supabase..."
           SUPABASE_STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
             -H "apikey: ${{ secrets.SUPABASE_API_KEY }}" \
+            -H "Authorization: Bearer ${{ secrets.SUPABASE_API_KEY }}" \
             https://cvukpuwtruisisnshfur.supabase.co/rest/v1/health)
           echo "Supabase response: $SUPABASE_STATUS"
           
-          # Ping Render
+          # Ping Render - adding -L to follow redirects
           echo "Pinging Render service..."
-          RENDER_STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
+          RENDER_STATUS=$(curl -L -s -o /dev/null -w "%{http_code}" \
             https://accountant2.onrender.com/)
           echo "Render response: $RENDER_STATUS"
           
           # Log results
           echo "Ping completed at $(date)"
           
-          # Optional: Fail the workflow if services are down
-          if [ "$SUPABASE_STATUS" != "200" ] && [ "$RENDER_STATUS" != "200" ]; then
-            echo "Warning: Both services returned non-200 status"
-            # Uncomment below to make workflow fail when services are down
-            # exit 1
+          # Modified success criteria to consider redirects as success for Render
+          # For Supabase, only 2xx codes are considered success
+          if [[ "$SUPABASE_STATUS" != 2* ]] && [[ "$RENDER_STATUS" != 2* && "$RENDER_STATUS" != 3* ]]; then
+            echo "Warning: Both services returned unsuccessful status codes"
+          else
+            echo "Success: Services are responding as expected"
           fi
+
+      # Optional: Save logs as artifacts for review
+      - name: Save logs
+        if: always()
+        run: |
+          mkdir -p ./logs
+          echo "$(date): Supabase: $SUPABASE_STATUS, Render: $RENDER_STATUS" >> ./logs/ping-history.log
+          
+      - name: Upload logs
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: ping-logs
+          path: ./logs/ping-history.log
+          retention-days: 7
