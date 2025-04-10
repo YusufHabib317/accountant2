@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import { Open_Sans as OpenSansFont } from 'next/font/google';
 import './globals.css';
 import { Providers } from '@/components/providers';
-import Script from 'next/script'; // ✅ Import Script component
+import Script from 'next/script'; // ✅ Required for loading GA scripts
 
 const OpenSans = OpenSansFont({
   weight: ['400', '600'],
@@ -11,7 +11,8 @@ const OpenSans = OpenSansFont({
 
 export const metadata: Metadata = {
   title: 'Accountant | Smart Financial Solutions for Individuals & Businesses',
-  description: 'Professional accounting services tailored for individuals, startups, and enterprises. Manage your finances, taxes, payroll, and reporting with confidence and clarity.',
+  description:
+    'Professional accounting services tailored for individuals, startups, and enterprises. Manage your finances, taxes, payroll, and reporting with confidence and clarity.',
 };
 
 export default function RootLayout({
@@ -28,20 +29,22 @@ export default function RootLayout({
         />
       </head>
       <body className={`${OpenSans.className} antialiased`}>
-        {/* ✅ Plausible script included here using <Script /> */}
+        {/* ✅ Google Analytics script loader */}
         <Script
           strategy="afterInteractive"
-          data-domain="accountant2.onrender.com"
-          src="https://plausible.io/js/script.outbound-links.js"
+          src="https://www.googletagmanager.com/gtag/js?id=G-V9DBVLDQM5"
         />
         <Script
-          id="plausible-init"
+          id="gtag-init"
           strategy="afterInteractive"
           dangerouslySetInnerHTML={{
             __html: `
-              window.plausible = window.plausible || function () {
-                (window.plausible.q = window.plausible.q || []).push(arguments)
-              };
+              window.dataLayer = window.dataLayer || [];
+              function gtag(){dataLayer.push(arguments);}
+              gtag('js', new Date());
+              gtag('config', 'G-V9DBVLDQM5', {
+                page_path: window.location.pathname,
+              });
             `,
           }}
         />
