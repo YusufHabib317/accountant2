@@ -50,6 +50,6 @@ export default async function authMiddleware(request: NextRequest) {
 
 export const config = {
   matcher: [
-    '/((?!api/auth|auth/login|auth/register|auth/reset-password|auth/forgot-password|auth/otp-email-verification|_next/static|_next/image|favicon.ico).*)',
+    '/((?!api/auth|api/cron|auth/login|auth/register|auth/reset-password|auth/forgot-password|auth/otp-email-verification|_next/static|_next/image|favicon.ico).*)',
   ],
 };
