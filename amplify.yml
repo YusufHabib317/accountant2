@@ -1,0 +1,22 @@
+version: 1
+frontend:
+  phases:
+    preBuild:
+      commands:
+        # Install and use Node.js 20
+        - nvm install 20
+        - nvm use 20
+
+        # Now install dependencies
+        - yarn install
+    build:
+      commands:
+        - yarn run build
+  artifacts:
+    # adjust if you’re using standalone or SSR
+    baseDirectory: .next
+    files:
+      - '**/*'
+  cache:
+    paths:
+      - node_modules/**/*
